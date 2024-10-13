@@ -1,59 +1,54 @@
-from time import sleep
-import tkinter as tk
-from PIL import Image, ImageTk
-import pyglet
+import time
+import sys
+import logging
+from logging.handlers import RotatingFileHandler
+from getFromSpotify import getFromSpotify
+import requests
+from io import BytesIO
+from PIL import Image
+import sys, os
+import urllib.request
+from displayUpdate import DisplayWindow
 
-window = tk.Tk()
+if __name__ == "__main__":
+    if len(sys.argv) > 2:
+        username = sys.argv[1]
+        token_path = sys.argv[2]
 
-images = {}
-default = Image.open("image_thumbnail.gif")
-images[0] = ImageTk.PhotoImage(default)
+        # Configure logger
+        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', filename='spotipy.log',level=logging.INFO)
+        logger = logging.getLogger('spotipy_logger')
 
-def loadImage(imgPath):
-    img = Image.open(imgPath)
-    img.thumbnail((880, 880))
-    img.save('image_thumbnail.gif')
+        # Auto delete logs larger than 2KB
+        handler = RotatingFileHandler('spotipy.log', maxBytes=2048, backupCount=3)
+        logger.addHandler(handler)
 
-    cover_art = Image.open("image_thumbnail.gif")
-    cover_art_image = ImageTk.PhotoImage(cover_art)
-    images[0] = cover_art_image
-    cover_art_label.configure(image=images[0])
-    window.update()
+        # Show default image
+        display = DisplayWindow()
 
-def loadTitle():
-    track_label.config(text="Without a Whisper")
-    window.update()
+        prevSong = ""
+        currSong = ""
+        try:
+            while True:
+                try:
+                    imageURL = getFromSpotify(username, token_path)[1]
+                    albumCoverArt = os.path.join(dir, 'client/album_cover.png')
+                    urllib.request.urlretrieve(imageURL, albumCoverArt)
+                    songName = getFromSpotify(username, token_path)[0]
+                    artistName = getFromSpotify(username, token_path)[2]
+                    currSong = imageURL
 
-def loadArtist():
-    artist_label.config(text="Invent Animate")
-    window.update()
+                    if (prevSong != currSong):
+                        response = requests.get(imageURL)
+                        image = Image.open(BytesIO(response.content))
+                        prevSong = currSong
+                    
+                    # Update displayed song info
+                    display.update_image(image)
+                    display.update_text(songName, artistName)
 
-def nothingPlaying():
-    window.configure(background="white")
-    cover_art_label.grid_forget()
-    track_label.grid_forget()
-    artist_label.grid_forget()
-
-pyglet.font.add_directory('C:\\Users\\Zach\\Documents\\Rasperry_Pi\\SpotifyFrame\\fonts\\gotham-rounded')
-
-window.title("Spotify Frame")
-window.overrideredirect(True)
-window.geometry("1024x1280")
-window.configure(bg="black")
-
-cover_art_label = tk.Label(window, background="black")
-cover_art_image = loadImage('Python\FlowerBoy.gif')
-cover_art_label.grid(row=0, column=0, padx=72, pady=72)
-track_label = tk.Label(window, text="I Ain't Got Time!", font=('GothamRounded-Bold', 50), background='black', foreground='white', justify='center')
-# track_label = tk.Label(window, text="SWEET / I THOUGHT YOU WANTED TO DANCE (feat. Brent Faiyez & Fana Hues)", font=('GothamRounded-Bold', 50), background='black', foreground='white', justify='center')
-track_label.config(anchor="center")
-track_label.grid(row=1, column=0)
-artist_label = tk.Label(window, text="Tyler, The Creator", font=('GothamRounded-Book', 20), background='black', foreground='white', justify='center')
-artist_label.grid(row=2, column=0)
-
-window.after(7500, lambda:window.destroy())
-window.after(2500, lambda:loadImage('Python\Heavener.gif'))
-window.after(2500, lambda:loadTitle())
-window.after(2500, lambda:loadArtist())
-window.after(5000, lambda:nothingPlaying())
-window.mainloop()
+                except Exception as e:
+                    print(e)
+                    time.sleep(1)
+        except KeyboardInterrupt:
+            sys.exit(0)

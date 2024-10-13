@@ -1,12 +1,14 @@
 import logging
 import spotipy
+import spotipy.util as util
+
 import requests
 from io import BytesIO
 from PIL import Image
 
 def getFromSpotify(username, token_path):
     scope = 'user-read-currently-playing'
-    token = spotipy.util.prompt_for_user_token(username, scope, cache_path=token_path)
+    token = util.prompt_for_user_token(username, scope, cache_path=token_path)
 
     if token:
         sp = spotipy.Spotify(auth=token)
@@ -16,7 +18,7 @@ def getFromSpotify(username, token_path):
             print("No song playing")
         else:
             song = result['item']['name']
-            artist = result['item']['artists']['name']
+            artist = result['item']['artists'][0]['name']
             imageURL = result['item']['album']['images'][0]['url']
             return [song, artist, imageURL]
     else:
