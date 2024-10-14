@@ -14,19 +14,19 @@ class DisplayWindow:
         height = self.window.winfo_screenheight()
 
         self.window.geometry(f"{width}x{height}")
-        self.window.configure(bg="black")
+        self.window.configure(bg="white")
 
-        self.image_label = tk.Label(self.window, bg="black")
+        self.image_label = tk.Label(self.window, bg="white")
         image_xpadding, image_ypadding = self.calculate_padding(width, height)
         self.image_label.grid(row=0, column=0, padx=image_xpadding, pady=image_ypadding)
 
         #self.track_label = tk.Label(self.window, text="", font=("GothamRounded-Bold", 26), bg="black", fg="white", justify="center")
-        self.track_label = tk.Label(self.window, text="", font=("Arial", 26), bg="black", fg="white", justify="center")
-        self.track_label.grid(row=1, column=0)
+        self.track_label = tk.Label(self.window, text="", font=("Arial", 26), bg="white", fg="black", justify="center")
+        self.track_label.grid(row=1, column=0, pady=(10, 0))
 
         #self.artist_label = tk.Label(self.window, text="Not Currently Playing", font=("GothamRounded-Book", 26), bg="black", fg="white", justify="center")
-        self.artist_label = tk.Label(self.window, text="Not Currently Playing", font=("Arial", 26), bg="black", fg="white", justify="center")
-        self.artist_label.grid(row=2, column=0)
+        self.artist_label = tk.Label(self.window, text="Not Currently Playing", font=("Arial", 26), bg="white", fg="black", justify="center")
+        self.artist_label.grid(row=2, column=0, pady=(0, 10))
 
         self.window.bind("<Escape>", self.close_window)
 
