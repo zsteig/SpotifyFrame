@@ -16,9 +16,9 @@ class DisplayWindow:
         self.window.geometry(f"{width}x{height}")
         self.window.configure(bg="black")
 
-        self.image_Label = tk.Label(self.window, bg="black")
+        self.image_label = tk.Label(self.window, bg="black")
         image_xpadding, image_ypadding = self.calculate_padding(width, height)
-        self.image_Label.grid(row=0, column=0, padx=image_xpadding, pady=image_ypadding)
+        self.image_label.grid(row=0, column=0, padx=image_xpadding, pady=image_ypadding)
 
         self.track_label = tk.Label(self.window, text="", font=("GothamRounded-Bold", 26), bg="black", fg="white", justify="center")
         self.track_label.grid(row=1, column=0)
@@ -37,19 +37,24 @@ class DisplayWindow:
         return xpadding, ypadding
 
     def update_image(self, image_path):
-        if os.path.isfile(image_path):
-            # Local Idle Logo
-            img = Image.open(image_path)
-            img.thumbnail((640, 640), Image.ANTIALIAS)
-        else:
-            # Cover art from API
-            response = requests.get(image_path)
-            img_data = response.content
-            img = Image.open(BytesIO(img_data))
+        try:
+            print(image_path)
+            abs_path = os.path.abspath(image_path)
 
-        img = ImageTk.PhotoImage(img)
-        self.image_Label.config(image=img)
-        self.image_Label.image = img
+            if os.path.isfile(abs_path):
+                # Local Idle Logo
+                img = Image.open(abs_path)
+                img.thumbnail((640, 640), Image.ANTIALIAS)
+            else:
+                # Cover art from API
+                response = requests.get(image_path)
+                img_data = response.content
+                img = Image.open(BytesIO(img_data))
+            img = ImageTk.PhotoImage(img)
+            self.image_label.config(image=img)
+            self.image_label.image = img
+        except Exception as e:
+            print(f"Error loading image: {e}")
 
     def update_text(self, track_text, artist_text):
         self.track_label.config(text=track_text)
