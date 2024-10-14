@@ -13,7 +13,7 @@ def update_display(display, prevSong):
     try:
         spotify_response = getFromSpotify()
         if spotify_response is None:
-            logo = "../Assets/Spotify-Logo-PNG.png"
+            logo = "./Assets/Spotify-Logo-PNG.png"
             display.update_image(logo)
             display.update_text("", "Not Currently Playing")
         else:
