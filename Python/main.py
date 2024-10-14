@@ -38,7 +38,7 @@ if __name__ == "__main__":
     handler = RotatingFileHandler('spotipy.log', maxBytes=2048, backupCount=3)
     logger.addHandler(handler)
     # Add font
-    pyglet.font.add_directory('C:\\Users\\Zach\\Documents\\Rasperry_Pi\\SpotifyFrame\\fonts\\gotham-rounded')
+    #pyglet.font.add_directory('C:\\Users\\Zach\\Documents\\Rasperry_Pi\\SpotifyFrame\\fonts\\gotham-rounded')
 
     # Show default image
     display = DisplayWindow()
