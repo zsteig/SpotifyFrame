@@ -9,7 +9,7 @@ class DisplayWindow:
         self.window = tk.Tk()
         self.window.title("Spotify Frame")
         self.window.rowconfigure(index=0, weight=0)
-        #self.window.overrideredirect(True)
+        self.window.attributes("-fullscreen", True)
 
         width = self.window.winfo_screenwidth()
         height = self.window.winfo_screenheight()
@@ -53,7 +53,7 @@ class DisplayWindow:
                 response = requests.get(image_path)
                 img_data = response.content
                 img = Image.open(BytesIO(img_data))
-                img.thumbnail((384, 384), Image.LANCZOS)
+                img.thumbnail((480, 480), Image.LANCZOS)
             img = ImageTk.PhotoImage(img)
             self.image_label.config(image=img)
             self.image_label.image = img
