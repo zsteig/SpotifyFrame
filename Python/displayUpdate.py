@@ -8,6 +8,7 @@ class DisplayWindow:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Spotify Frame")
+        self.window.rowconfigure(index=0, weight=0)
         #self.window.overrideredirect(True)
 
         width = self.window.winfo_screenwidth()
@@ -22,11 +23,11 @@ class DisplayWindow:
 
         #self.track_label = tk.Label(self.window, text="", font=("GothamRounded-Bold", 26), bg="black", fg="white", justify="center")
         self.track_label = tk.Label(self.window, text="", font=("Arial", 26), bg="white", fg="black", justify="center")
-        self.track_label.grid(row=1, column=0, pady=(10, 0))
+        self.track_label.grid(row=1, column=0)
 
         #self.artist_label = tk.Label(self.window, text="Not Currently Playing", font=("GothamRounded-Book", 26), bg="black", fg="white", justify="center")
         self.artist_label = tk.Label(self.window, text="Not Currently Playing", font=("Arial", 26), bg="white", fg="black", justify="center")
-        self.artist_label.grid(row=2, column=0, pady=(0, 10))
+        self.artist_label.grid(row=2, column=0)
 
         self.window.bind("<Escape>", self.close_window)
 
@@ -35,7 +36,7 @@ class DisplayWindow:
 
     def calculate_padding(self, width, height):
         xpadding = (width - 256) // 2
-        ypadding = (height - 384) // 2
+        ypadding = (height - 384) // 4
         return xpadding, ypadding
 
     def update_image(self, image_path):
