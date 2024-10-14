@@ -1,27 +1,52 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+import requests
+from io import BytesIO
+import os
 
 class DisplayWindow:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Spotify Frame")
         self.window.overrideredirect(True)
-        self.window.geometry("1024x1280")
+
+        width = self.window.winfo_screenwidth()
+        height = self.window.winfo_screenheight()
+
+        self.window.geometry(f"{width}x{height}")
         self.window.configure(bg="black")
 
         self.image_Label = tk.Label(self.window, bg="black")
-        self.image_Label.pack(pady=20)
+        image_xpadding, image_ypadding = self.calculate_padding(width, height)
+        self.image_Label.grid(row=0, column=0, padx=image_xpadding, pady=image_ypadding)
 
-        self.track_label = tk.Label(self.window, text="Nothing Playing", font=("GothamRounded-Bold", 20), bg="black", fg="white", justify="center")
+        self.track_label = tk.Label(self.window, text="", font=("GothamRounded-Bold", 26), bg="black", fg="white", justify="center")
         self.track_label.grid(row=1, column=0)
-        self.track_label.pack(pady=20)
 
-        self.artist_label = tk.Label(self.window, text="", font=("GothamRounded-Book", 20), bg="black", fg="white", justify="center")
+        self.artist_label = tk.Label(self.window, text="Not Currently Playing", font=("GothamRounded-Book", 26), bg="black", fg="white", justify="center")
         self.artist_label.grid(row=2, column=0)
-        self.artist_label.pack(pady=20)
+
+        self.window.bind("<Escape>", self.close_window)
+
+    def close_window(self, event):
+        self.window.destroy()
+
+    def calculate_padding(self, width, height):
+        xpadding = (width - 640) // 2
+        ypadding = (height - 960) // 2
+        return xpadding, ypadding
 
     def update_image(self, image_path):
-        img = Image.open(image_path)
+        if os.path.isfile(image_path):
+            # Local Idle Logo
+            img = Image.open(image_path)
+            img.thumbnail((640, 640), Image.ANTIALIAS)
+        else:
+            # Cover art from API
+            response = requests.get(image_path)
+            img_data = response.content
+            img = Image.open(BytesIO(img_data))
+
         img = ImageTk.PhotoImage(img)
         self.image_Label.config(image=img)
         self.image_Label.image = img

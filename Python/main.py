@@ -4,51 +4,46 @@ import logging
 from logging.handlers import RotatingFileHandler
 from getFromSpotify import getFromSpotify
 import requests
-from io import BytesIO
-from PIL import Image
 import sys, os
 import urllib.request
 from displayUpdate import DisplayWindow
+import pyglet
+
+def update_display(display, prevSong):
+    try:
+        spotify_response = getFromSpotify()
+        if spotify_response is None:
+            logo = "./Assets/Spotify-Logo-PNG.png"
+            display.update_image(logo)
+            display.update_text("", "Not Currently Playing")
+        else:
+            imageURL, artistName, songName = spotify_response
+            currSong = songName
+            if prevSong != currSong:
+                prevSong = currSong
+                # Update displayed song info
+                display.update_image(imageURL)
+                display.update_text(songName, artistName)
+        # Schedule the next update
+        display.window.after(5000, update_display, display, prevSong)
+    except Exception as e:
+        print(e)
+        display.window.after(1000, update_display, display, prevSong)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        username = sys.argv[1]
-        token_path = sys.argv[2]
+    # Configure logger
+    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', filename='spotipy.log', level=logging.INFO)
+    logger = logging.getLogger('spotipy_logger')
+    # Auto delete logs larger than 2KB
+    handler = RotatingFileHandler('spotipy.log', maxBytes=2048, backupCount=3)
+    logger.addHandler(handler)
+    # Add font
+    pyglet.font.add_directory('C:\\Users\\Zach\\Documents\\Rasperry_Pi\\SpotifyFrame\\fonts\\gotham-rounded')
 
-        # Configure logger
-        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', filename='spotipy.log',level=logging.INFO)
-        logger = logging.getLogger('spotipy_logger')
+    # Show default image
+    display = DisplayWindow()
+    prevSong = ""
 
-        # Auto delete logs larger than 2KB
-        handler = RotatingFileHandler('spotipy.log', maxBytes=2048, backupCount=3)
-        logger.addHandler(handler)
-
-        # Show default image
-        display = DisplayWindow()
-
-        prevSong = ""
-        currSong = ""
-        try:
-            while True:
-                try:
-                    imageURL = getFromSpotify(username, token_path)[1]
-                    albumCoverArt = os.path.join(dir, 'client/album_cover.png')
-                    urllib.request.urlretrieve(imageURL, albumCoverArt)
-                    songName = getFromSpotify(username, token_path)[0]
-                    artistName = getFromSpotify(username, token_path)[2]
-                    currSong = imageURL
-
-                    if (prevSong != currSong):
-                        response = requests.get(imageURL)
-                        image = Image.open(BytesIO(response.content))
-                        prevSong = currSong
-                    
-                    # Update displayed song info
-                    display.update_image(image)
-                    display.update_text(songName, artistName)
-
-                except Exception as e:
-                    print(e)
-                    time.sleep(1)
-        except KeyboardInterrupt:
-            sys.exit(0)
+    # Start the initial update
+    display.window.after(0, update_display, display, prevSong)
+    display.run()
