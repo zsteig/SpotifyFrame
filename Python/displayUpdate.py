@@ -35,8 +35,8 @@ class DisplayWindow:
         self.window.destroy()
 
     def calculate_padding(self, width, height):
-        xpadding = (width - 480) // 2
-        ypadding = (height - 720) // 4
+        xpadding = (width - 640) // 2
+        ypadding = (height - 640) // 4
         return xpadding, ypadding
 
     def update_image(self, image_path):
@@ -47,13 +47,13 @@ class DisplayWindow:
             if os.path.isfile(abs_path):
                 # Local Idle Logo
                 img = Image.open(abs_path)
-                img.thumbnail((480, 480), Image.LANCZOS)
+                img.thumbnail((640, 640), Image.LANCZOS)
             else:
                 # Cover art from API
                 response = requests.get(image_path)
                 img_data = response.content
                 img = Image.open(BytesIO(img_data))
-                img.thumbnail((480, 480), Image.LANCZOS)
+                img.thumbnail((640, 640), Image.LANCZOS)
             img = ImageTk.PhotoImage(img)
             self.image_label.config(image=img)
             self.image_label.image = img
